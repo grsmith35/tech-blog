@@ -1,0 +1,25 @@
+<section>
+    <h2>Add New Post</h2>
+
+    <form action="newpost">
+        <div>
+            <label for="post-type">Post Type</label>
+            <select name="post-options" id="post-options">
+                <option value="" selected="selected">Select Post Type</option>
+                <option value="article">Article</option>
+                <option value="blog-post">Blog Post</option>
+                <option value="other">Other</option>
+            </select>
+        </div>
+        <div>
+            <label for="post-title">Title</label>
+            <input type="text" id="post-title">
+        </div>
+        <div>
+            {{#if post-options === 'article'}}
+            <label for="article_url">Article URL</label>
+            <input type="text" id="article_url">
+            {{else if post-options === 'blog-post'}}
+        </div>
+    </form>
+</section>
