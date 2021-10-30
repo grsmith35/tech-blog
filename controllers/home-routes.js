@@ -1,6 +1,7 @@
 const router = require('express').Router();
 
-router.get('/login', (req, res) => {
-    res.render('login');
-    console.log('i did get to this.')
+router.get('/', (req, res) => {
+    res.render('index');
 });
+
+module.exports = router;
