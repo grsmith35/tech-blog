@@ -16,10 +16,24 @@
             <input type="text" id="post-title">
         </div>
         <div>
-            {{#if post-options === 'article'}}
-            <label for="article_url">Article URL</label>
+            <label for="article_url">URL</label>
             <input type="text" id="article_url">
-            {{else if post-options === 'blog-post'}}
         </div>
     </form>
 </section>
+
+{{#if posts.length}}
+<section>
+    <h2>Your Current Posts</h2>
+    <ol>
+        {{#each posts as |post|}}
+        <li>
+            {{> post-info post}}
+            <a href="/dashboard/edit{{post.id}}" class="edit-link">Edit Post</a>
+        </li>
+        {{/each}}
+    </ol>
+</section>
+{{/if}}
+
+<script src="/javascript/add-post"></script>
