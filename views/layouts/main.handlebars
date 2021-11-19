@@ -5,21 +5,21 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Tech Blog</title>
-  <link rel="stylesheet" href="/stylesheets/style.css">
+  <link rel="stylesheet" href="/stylesheets/styles.css">
 </head>
 
 <body>
  <div class="wrapper">
     <header>
-      <h1>
-        <a href="/">Just Tech News</a>
-      </h1>
+
+        <a href="/"><h1>Just Tech News</h1></a>
+
       <nav>
         {{#if loggedIn}}
-        <a href="/dashboard">dashboard</a>
+        <a href="/dashboard">Dashboard</a>
         <button id="logout" class="btn-no-style">logout</button>
         {{else}}
-        <a href="/login">login</a>
+        <a href="/login">Login</a>
         {{/if}}
       </nav>
     </header>
@@ -27,7 +27,15 @@
       {{{ body }}}
     </main>
     <footer>
-      Thanks for visiting!
+        Thanks for visiting!
+        <ul>
+          <li>
+            <a href="https://github.com/grsmith35" target="_blank">My Github</a>
+          </li>
+          <li>
+            <a href="mailto:riley_smith8@hotmail.com">Contact me</a>
+          </li>
+        </ul>
     </footer>
   </div>
   

@@ -1,15 +1,18 @@
 const router = require('express').Router();
+const sequelize = require('../config/connection')
 const { Post, User, Comment } = require('../models');
 const withAuth = require('../utils/auth');
 
 router.get('/', withAuth, (req, res) => {
+    console.log(req.session)
     Post.findAll({
         where: {user_id: req.session.user_id},
         attributes: [
             'id',
             'post_url',
             'title',
-            'created_at'
+            'created_at',
+            [sequelize.literal('(SELECT COUNT(*) FROM vote where post.id = vote.post_id)'), 'vote_count']
         ],
         include: [
             {
@@ -33,8 +36,9 @@ router.get('/', withAuth, (req, res) => {
         ]
     })
     .then(dbRequestData => {
-        const data = dbRequestData.map(post => post.get({plain: true}));
-        res.render('dashboard', { data, loggedIn: true})
+        const posts = dbRequestData.map(post => post.get({plain: true}));
+        console.log(posts)
+        res.render('dashboard', { posts, loggedIn: true})
     })
     .catch(err => {
         console.log(err);
@@ -42,13 +46,15 @@ router.get('/', withAuth, (req, res) => {
     })
 });
 
-router.get('/edit/:id', (req, res) => {
-    Post.findByPk(req.params.id, {
+router.get('/edit/:id', withAuth, (req, res) => {
+    Post.findOne({
+        where : { id: req.params.id},
         attributes: [
             'id',
             'post_url',
             'title',
-            'created_at'
+            'created_at',
+            [sequelize.literal('(SELECT COUNT(*) FROM vote where post.id = vote.post_id)'), 'vote_count'],
         ],
         include: [
             {
@@ -56,7 +62,7 @@ router.get('/edit/:id', (req, res) => {
                 attributes: [
                     'id',
                     'comment_text',
-                    'post_it',
+                    'post_id',
                     'user_id',
                     'created_at'
                 ],

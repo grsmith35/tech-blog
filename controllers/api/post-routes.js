@@ -1,5 +1,7 @@
 const router = require('express').Router();
-const {User, Post, Comment} = require('../../models');
+const sequelize = require('../../config/connection');
+const withAuth = require('../../utils/auth');
+const {Vote, User, Post, Comment} = require('../../models');
 
 //GET /api/post routes
 //get all posts
@@ -10,7 +12,8 @@ router.get('/', (req, res) => {
             'id',
             'post_url',
             'title',
-            'created_at'
+            'created_at',
+            [sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'), 'vote_count']
         ],
         include: [
             {
@@ -42,7 +45,8 @@ router.get('/:id', (req, res) => {
             'id', 
             'post_url',
             'title',
-            'created_at'
+            'created_at',
+            [sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'), 'vote_count']
         ],
         include: [
             {
@@ -77,7 +81,7 @@ router.post('/', (req, res) => {
     Post.create({
         title: req.body.title,
         post_url: req.body.post_url,
-        user_id: req.body.user_id
+        user_id: req.session.user_id
     })
     .then(dbPostdata => res.json(dbPostdata))
     .catch(err => {
@@ -86,8 +90,22 @@ router.post('/', (req, res) => {
     })
 });
 
+//route to vote
+router.put('/upvote', withAuth, (req, res) => {
+  console.log('to to the upvote')
+  if(req.session) {
+    console.log('got into the session for upvote')
+    Post.upvote({...req.body, user_id: req.session.user_id}, {Vote, Comment, User})
+    .then(dbPostData => res.json(dbPostData))
+    .catch(err => {
+      console.log(err);
+      res.status(400).json(err);
+    })
+  }
+})
+
 //route to put
-router.put('/:id', (req, res) => {
+router.put('/:id', withAuth, (req, res) => {
     Post.update(
       {
         title: req.body.title

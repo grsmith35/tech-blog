@@ -1,5 +1,7 @@
 const router = require('express').Router();
+const sequelize = require('../config/connection');
 const { Post, User, Comment } = require('../models');
+const withAuth = require('../utils/auth');
 
 // get all the posts for homepage
 router.get('/', (req, res) => {
@@ -9,6 +11,7 @@ router.get('/', (req, res) => {
         'post_url',
         'title',
         'created_at',
+        [sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'), 'vote_count']
       ],
       include: [
         {
@@ -18,7 +21,7 @@ router.get('/', (req, res) => {
               'comment_text',
               'post_id',
               'user_id',
-              'created_at'
+              'created_at',
             ],
           include: {
             model: User,
@@ -33,7 +36,6 @@ router.get('/', (req, res) => {
     })
       .then(dbRequestData => {
         const posts = dbRequestData.map(post => post.get({ plain: true }));
-  
         res.render('homepage', {
           posts,
           loggedIn: req.session.loggedIn
@@ -46,7 +48,7 @@ router.get('/', (req, res) => {
   });
   
   // get a single post
-  router.get('/post/:id', (req, res) => {
+  router.get('/post/:id', withAuth, (req, res) => {
     Post.findOne({
       where: {
         id: req.params.id
@@ -56,7 +58,7 @@ router.get('/', (req, res) => {
         'post_url',
         'title',
         'created_at',
-      ],
+        [sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'), 'vote_count']      ],
       include: [
         {
           model: Comment,
@@ -105,5 +107,15 @@ router.get('/', (req, res) => {
   
     res.render('login');
   });
+
+  router.post('/logout', (req, res) => {
+    if(req.session.loggedin) {
+      req.session.destroy(() => {
+        res.status(204).end();
+      })
+    } else {
+      res.status(400).end();
+    }
+  })
 
 module.exports = router;
